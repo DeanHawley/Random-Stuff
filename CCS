@@ -71,7 +71,7 @@ javascript:(function() {
 
   setInterval(addButtons, 1);
 
-  let a = new Audio("https://raw.githubusercontent.com/DeanHawley/cookie-clicker-steam-music/d66e06e683d47fe542bb786417caafc90cbceca7/hover.mp3");
+  let a = new Audio("https://raw.githubusercontent.com/DeanHawley/Random-Stuff/refs/heads/main/hover.mp3");
   a.loop = true;
   a.play();
 
