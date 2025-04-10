@@ -1,8 +1,12 @@
 javascript:(function(){
+  let id = "upgrade9999";
+  let upgradeDiv = document.getElementById(id);
+  if (upgradeDiv) upgradeDiv.remove();
+
   let el = document.createElement("div");
   el.className = "crate upgrade enabled";
   el.setAttribute("data-id", "9999");
-  el.id = "upgrade9999";
+  el.id = id;
   el.style = "background-image:url('https://raw.githubusercontent.com/DeanHawley/Random-Stuff/main/7559929_youtube_video_pixel_logo_site_icon.png');background-size:cover;";
 
   el.onmouseout = function() {
@@ -39,7 +43,7 @@ javascript:(function(){
     submitButton.onclick = function() {
       let link = linkPrompt.value;
       if (!link) return;
-      
+
       let videoId = '';
       try {
         let url = new URL(link);
@@ -97,5 +101,21 @@ javascript:(function(){
     document.body.appendChild(messageContainer);
   }
 
-  document.getElementById("toggleUpgrades").appendChild(el);
+  if (!Game.customUpgrades) Game.customUpgrades = {};
+  Game.customUpgrades[id] = function() {
+    if (!document.getElementById(id)) {
+      let upgrades = document.getElementById("toggleUpgrades");
+      if (upgrades) upgrades.appendChild(el);
+    }
+  };
+
+  if (Game.customUpgrades) {
+    Object.values(Game.customUpgrades).forEach(f => f());
+  }
+
+  Game.registerHook('draw', function() {
+    if (Game.customUpgrades) {
+      Object.values(Game.customUpgrades).forEach(f => f());
+    }
+  });
 })();
