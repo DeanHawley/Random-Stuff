@@ -80,7 +80,7 @@ javascript:(function() {
     if (b) return;
     b = true;
     a.pause();
-    let c = new Audio("https://raw.githubusercontent.com/DeanHawley/cookie-clicker-steam-music/d66e06e683d47fe542bb786417caafc90cbceca7/click.mp3");
+    let c = new Audio("https://raw.githubusercontent.com/DeanHawley/Random-Stuff/refs/heads/main/click.mp3");
     c.loop = true;
     c.play();
   });
