@@ -1,0 +1,101 @@
+javascript:(function(){
+  let el = document.createElement("div");
+  el.className = "crate upgrade enabled";
+  el.setAttribute("data-id", "9999");
+  el.id = "upgrade9999";
+  el.style = "background-image:url('https://raw.githubusercontent.com/DeanHawley/Random-Stuff/main/7559929_youtube_video_pixel_logo_site_icon.png');background-size:cover;";
+
+  el.onmouseout = function() {
+    Game.setOnCrate(0);
+    Game.tooltip.shouldHide = 1;
+  };
+
+  el.onmouseover = function() {
+    if (!Game.mouseDown) {
+      Game.setOnCrate(el);
+      Game.tooltip.dynamic = 1;
+      Game.tooltip.draw(el, function() {
+        return function() {
+          return '<div style="padding:8px;text-align:center;">YouTube Player<br>Click to open</div>';
+        };
+      }(), 'store');
+      Game.tooltip.wobble();
+    }
+  };
+
+  el.onclick = function() {
+    let linkInputContainer = document.createElement("div");
+    linkInputContainer.style = "position:fixed;top:40%;left:50%;transform:translate(-50%, -50%);padding:20px;background-color:rgba(0,0,0,0.7);border:2px solid #fff;color:#fff;font-size:16px;text-align:center;border-radius:5px;z-index:10000;";
+
+    let linkPrompt = document.createElement("input");
+    linkPrompt.type = "text";
+    linkPrompt.placeholder = "Enter YouTube link...";
+    linkPrompt.style = "padding:10px;width:80%;border:2px solid #fff;border-radius:5px;margin-bottom:10px;font-size:16px;color:#fff;background-color:rgba(0,0,0,0.5);";
+
+    let submitButton = document.createElement("button");
+    submitButton.textContent = "Submit";
+    submitButton.style = "padding:10px 20px;background-color:rgba(0, 0, 0, 0.8);color:#fff;border:none;cursor:pointer;border-radius:5px;";
+
+    submitButton.onclick = function() {
+      let link = linkPrompt.value;
+      if (!link) return;
+      
+      let videoId = '';
+      try {
+        let url = new URL(link);
+        if (url.hostname === "www.youtube.com" || url.hostname === "youtube.com") {
+          videoId = url.searchParams.get("v");
+        } else if (url.hostname === "youtu.be") {
+          videoId = url.pathname.split('/')[1];
+        }
+      } catch (err) {
+        videoId = "";
+      }
+
+      if (!videoId) {
+        showCustomMessage("Invalid link");
+        return;
+      }
+
+      let adContainer = document.getElementById("smallSupport");
+      if (adContainer) {
+        adContainer.innerHTML = "";
+        let iframe = document.createElement("iframe");
+        iframe.src = "https://www.youtube.com/embed/" + videoId + "?autoplay=1";
+        iframe.width = "300";
+        iframe.height = "250";
+        iframe.allow = "autoplay; encrypted-media";
+        iframe.setAttribute("frameborder", "0");
+        iframe.setAttribute("allowfullscreen", "");
+        adContainer.appendChild(iframe);
+      }
+
+      linkInputContainer.remove();
+    };
+
+    linkInputContainer.appendChild(linkPrompt);
+    linkInputContainer.appendChild(submitButton);
+    document.body.appendChild(linkInputContainer);
+  };
+
+  function showCustomMessage(message) {
+    let messageContainer = document.createElement("div");
+    messageContainer.style = "position:fixed;top:40%;left:50%;transform:translate(-50%, -50%);padding:20px;background-color:rgba(0,0,0,0.7);border:2px solid #fff;color:#fff;font-size:16px;text-align:center;border-radius:5px;z-index:10000;";
+
+    let messageText = document.createElement("div");
+    messageText.textContent = message;
+    messageContainer.appendChild(messageText);
+
+    let closeButton = document.createElement("button");
+    closeButton.textContent = "Close";
+    closeButton.style = "margin-top:10px;padding:5px 15px;font-size:14px;background-color:rgba(0, 0, 0, 0.8);color:#fff;border:none;cursor:pointer;border-radius:5px;";
+    closeButton.onclick = function() {
+      messageContainer.remove();
+    };
+    messageContainer.appendChild(closeButton);
+
+    document.body.appendChild(messageContainer);
+  }
+
+  document.getElementById("toggleUpgrades").appendChild(el);
+})();
