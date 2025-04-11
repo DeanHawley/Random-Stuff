@@ -1,35 +1,19 @@
 javascript:(function(){
-  let id = "upgrade9999";
-  let upgradeDiv = document.getElementById(id);
-  if (upgradeDiv) upgradeDiv.remove();
+  const p = new Game.Upgrade('YouTube Player', 'Click to open', 0, [0, 0, 'https://raw.githubusercontent.com/DeanHawley/Random-Stuff/main/7559929_youtube_video_pixel_logo_site_icon.png']);
+  p.pool = 'toggle';
+  p.order = 1e6;
+  p.unlock();
+  LocalizeUpgradesAndAchievs();
 
-  let el = document.createElement("div");
-  el.className = "crate upgrade enabled";
-  el.setAttribute("data-id", "9999");
-  el.id = id;
-  el.style = "background-image:url('https://raw.githubusercontent.com/DeanHawley/Random-Stuff/main/7559929_youtube_video_pixel_logo_site_icon.png');background-size:cover;";
-
-  el.onmouseout = function() {
-    Game.setOnCrate(0);
-    Game.tooltip.shouldHide = 1;
-  };
-
-  el.onmouseover = function() {
-    if (!Game.mouseDown) {
-      Game.setOnCrate(el);
-      Game.tooltip.dynamic = 1;
-      Game.tooltip.draw(el, function() {
-        return function() {
-          return '<div style="padding:8px;text-align:center;">YouTube Player<br>Click to open</div>';
-        };
-      }(), 'store');
-      Game.tooltip.wobble();
-    }
-  };
-
-  el.onclick = function() {
+  p.clickFunction = function() {
     let linkInputContainer = document.createElement("div");
     linkInputContainer.style = "position:fixed;top:40%;left:50%;transform:translate(-50%, -50%);padding:20px;background-color:rgba(0,0,0,0.7);border:2px solid #fff;color:#fff;font-size:16px;text-align:center;border-radius:5px;z-index:10000;";
+
+    let closeX = document.createElement("div");
+    closeX.textContent = "×";
+    closeX.style = "position:absolute;top:5px;right:10px;cursor:pointer;font-size:20px;";
+    closeX.onclick = () => linkInputContainer.remove();
+    linkInputContainer.appendChild(closeX);
 
     let linkPrompt = document.createElement("input");
     linkPrompt.type = "text";
@@ -39,7 +23,6 @@ javascript:(function(){
     let submitButton = document.createElement("button");
     submitButton.textContent = "Submit";
     submitButton.style = "padding:10px 20px;background-color:rgba(0, 0, 0, 0.8);color:#fff;border:none;cursor:pointer;border-radius:5px;";
-
     submitButton.onclick = function() {
       let link = linkPrompt.value;
       if (!link) return;
@@ -47,9 +30,9 @@ javascript:(function(){
       let videoId = '';
       try {
         let url = new URL(link);
-        if (url.hostname === "www.youtube.com" || url.hostname === "youtube.com") {
+        if (url.hostname.includes("youtube.com")) {
           videoId = url.searchParams.get("v");
-        } else if (url.hostname === "youtu.be") {
+        } else if (url.hostname.includes("youtu.be")) {
           videoId = url.pathname.split('/')[1];
         }
       } catch (err) {
@@ -57,7 +40,30 @@ javascript:(function(){
       }
 
       if (!videoId) {
-        showCustomMessage("Invalid link");
+        linkInputContainer.remove();
+
+        let errBox = document.createElement("div");
+        errBox.style = "position:fixed;top:40%;left:50%;transform:translate(-50%, -50%);padding:20px;background-color:rgba(0,0,0,0.7);border:2px solid #fff;color:#fff;font-size:16px;text-align:center;border-radius:5px;z-index:10000;";
+
+        let closeErr = document.createElement("div");
+        closeErr.textContent = "×";
+        closeErr.style = "position:absolute;top:5px;right:10px;cursor:pointer;font-size:20px;";
+        closeErr.onclick = () => errBox.remove();
+        errBox.appendChild(closeErr);
+
+        let msg = document.createElement("div");
+        msg.textContent = "Invalid link";
+        errBox.appendChild(msg);
+
+        let retryBtn = document.createElement("button");
+        retryBtn.textContent = "Retry";
+        retryBtn.style = "margin-top:10px;padding:10px 20px;background-color:rgba(0, 0, 0, 0.8);color:#fff;border:none;cursor:pointer;border-radius:5px;";
+        retryBtn.onclick = function() {
+          errBox.remove();
+          p.clickFunction();
+        };
+        errBox.appendChild(retryBtn);
+        document.body.appendChild(errBox);
         return;
       }
 
@@ -81,41 +87,4 @@ javascript:(function(){
     linkInputContainer.appendChild(submitButton);
     document.body.appendChild(linkInputContainer);
   };
-
-  function showCustomMessage(message) {
-    let messageContainer = document.createElement("div");
-    messageContainer.style = "position:fixed;top:40%;left:50%;transform:translate(-50%, -50%);padding:20px;background-color:rgba(0,0,0,0.7);border:2px solid #fff;color:#fff;font-size:16px;text-align:center;border-radius:5px;z-index:10000;";
-
-    let messageText = document.createElement("div");
-    messageText.textContent = message;
-    messageContainer.appendChild(messageText);
-
-    let closeButton = document.createElement("button");
-    closeButton.textContent = "Close";
-    closeButton.style = "margin-top:10px;padding:5px 15px;font-size:14px;background-color:rgba(0, 0, 0, 0.8);color:#fff;border:none;cursor:pointer;border-radius:5px;";
-    closeButton.onclick = function() {
-      messageContainer.remove();
-    };
-    messageContainer.appendChild(closeButton);
-
-    document.body.appendChild(messageContainer);
-  }
-
-  if (!Game.customUpgrades) Game.customUpgrades = {};
-  Game.customUpgrades[id] = function() {
-    if (!document.getElementById(id)) {
-      let upgrades = document.getElementById("toggleUpgrades");
-      if (upgrades) upgrades.appendChild(el);
-    }
-  };
-
-  if (Game.customUpgrades) {
-    Object.values(Game.customUpgrades).forEach(f => f());
-  }
-
-  Game.registerHook('draw', function() {
-    if (Game.customUpgrades) {
-      Object.values(Game.customUpgrades).forEach(f => f());
-    }
-  });
 })();
