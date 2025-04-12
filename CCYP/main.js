@@ -1,4 +1,4 @@
-javascript:(function(){
+(function(){
   const p = new Game.Upgrade('YouTube Player', 'Click to open', 0, [0, 0, 'https://raw.githubusercontent.com/DeanHawley/Random-Stuff/main/Youtube.png']);
   p.pool = 'toggle';
   p.order = 1e6;
