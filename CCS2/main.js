@@ -12,7 +12,6 @@
     function addButtons() {
         var fancy = document.getElementById("fancyButton");
         if (!fancy) return;
-
         var fs = document.getElementById("fullscreenButton");
         var music = document.getElementById("musicButton");
 
@@ -89,26 +88,20 @@
     setInterval(function() {
         var supportSection = document.getElementById('supportSection');
         if (supportSection) supportSection.remove();
-
         var warningSections = document.querySelectorAll('.listing.warning');
         if (warningSections.length > 1) warningSections[1].remove();
-
         var buffs = document.getElementById('buffs');
         if (buffs) buffs.style.marginTop = '20px';
-
         var ad = document.getElementById('support');
         if (ad) ad.remove();
-
         var shadow = document.querySelector('#store').previousElementSibling;
         if (shadow) shadow.remove();
-
         var store = document.getElementById('store');
         if (store) {
             store.style.position = 'relative';
             store.style.marginTop = '0';
             store.style.zIndex = '100';
         }
-
         var linksBar = document.getElementById('topBar');
         if (linksBar) {
             Array.from(linksBar.children).forEach(function(child) {
