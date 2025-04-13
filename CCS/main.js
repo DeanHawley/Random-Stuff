@@ -1,112 +1,49 @@
-(function() {
-    function updateFullscreenButtonState(btn) {
-        if (document.fullscreenElement) {
-            btn.textContent = "Fullscreen ON";
-            btn.classList.remove("off");
-        } else {
-            btn.textContent = "Fullscreen OFF";
-            btn.classList.add("off");
-        }
-    }
+(function(){
+  const p = new Game.Upgrade('YouTube Player', 'Click to open', 0, [0, 0, 'https://raw.githubusercontent.com/DeanHawley/Random-Stuff/main/Youtube.png']);
+  p.pool = 'toggle';
+  p.order = 1e6;
+  p.unlock();
+  LocalizeUpgradesAndAchievs();
 
-    function addButtons() {
-        var fancy = document.getElementById("fancyButton");
-        if (!fancy) return;
-        var fs = document.getElementById("fullscreenButton");
-        var music = document.getElementById("musicButton");
-
-        if (!music) {
-            var mBtn = fancy.cloneNode(true);
-            mBtn.id = "musicButton";
-            if (localStorage.getItem('musicStatus') === 'on') {
-                mBtn.textContent = "Music in background ON";
-                mBtn.classList.remove("off");
-            } else {
-                mBtn.textContent = "Music in background OFF";
-                mBtn.classList.add("off");
-            }
-            mBtn.onclick = function() {
-                if (mBtn.textContent === "Music in background OFF") {
-                    mBtn.textContent = "Music in background ON";
-                    mBtn.classList.remove("off");
-                    localStorage.setItem('musicStatus', 'on');
-                } else {
-                    mBtn.textContent = "Music in background OFF";
-                    mBtn.classList.add("off");
-                    localStorage.setItem('musicStatus', 'off');
-                }
-            };
-            var description = document.createElement('label');
-            description.textContent = "(music will keep playing even when the game window isn't focused)";
-            description.style.fontSize = "12px";
-            description.style.marginTop = "5px";
-            description.style.color = "gray";
-            fancy.insertAdjacentElement("beforebegin", mBtn);
-            fancy.insertAdjacentElement("beforebegin", description);
+  p.clickFunction = function() {
+    Game.Prompt('<h3 style="text-align:center;margin-bottom:8px;">Enter YouTube link:</h3><div class="block" style="display:flex;justify-content:center;"><input type="text" style="text-align:center;width:90%;" id="youtubeLink"/></div>',[
+      ['Submit',function(){
+        let link = l("youtubeLink").value;
+        let videoId = '';
+        try {
+          let url = new URL(link);
+          if (url.hostname.includes("youtube.com")) {
+            videoId = url.searchParams.get("v");
+          } else if (url.hostname.includes("youtu.be")) {
+            videoId = url.pathname.split('/')[1];
+          }
+        } catch (err) {
+          videoId = "";
         }
 
-        if (!fs) {
-            var fBtn = fancy.cloneNode(true);
-            fBtn.id = "fullscreenButton";
-            fBtn.style.display = "block";
-            fBtn.onclick = function() {
-                if (!document.fullscreenElement) {
-                    document.documentElement.requestFullscreen();
-                } else {
-                    document.exitFullscreen();
-                }
-                PlaySound('snd/tick.mp3');
-            };
-            fancy.insertAdjacentElement("beforebegin", fBtn);
-            updateFullscreenButtonState(fBtn);
-        } else {
-            updateFullscreenButtonState(fs);
+        if (!videoId) {
+          Game.ClosePrompt();
+          Game.Prompt('<h3 style="text-align:center;">Invalid YouTube link</h3>',[['Retry',p.clickFunction],['Close']]);
+          return;
         }
-    }
 
-    setInterval(addButtons, 1);
-
-    let a = new Audio("https://raw.githubusercontent.com/DeanHawley/cookie-clicker-steam-music/d66e06e683d47fe542bb786417caafc90cbceca7/hover.mp3");
-    a.loop = true;
-    a.play();
-
-    let b = false;
-    document.getElementById("bigCookie").addEventListener("click", function() {
-        if (b) return;
-        b = true;
-        a.pause();
-        let c = new Audio("https://raw.githubusercontent.com/DeanHawley/cookie-clicker-steam-music/d66e06e683d47fe542bb786417caafc90cbceca7/click.mp3");
-        c.loop = true;
-        c.play();
-    });
-
-    setInterval(function() {
-        const noteDiv = Array.from(document.querySelectorAll('.listing')).find(div => div.textContent.includes("Note: if you find a new bug after an update and you're using a 3rd-party add-on, make sure it's not just your add-on causing it!"));
-        if (noteDiv) noteDiv.style.marginBottom = '15px';
-    }, 1);
-
-    setInterval(function() {
-        var supportSection = document.getElementById('supportSection');
-        if (supportSection) supportSection.remove();
-        var warningSections = document.querySelectorAll('.listing.warning');
-        if (warningSections.length > 1) warningSections[1].remove();
-        var buffs = document.getElementById('buffs');
-        if (buffs) buffs.style.marginTop = '20px';
-        var ad = document.getElementById('support');
-        if (ad) ad.remove();
-        var shadow = document.querySelector('#store').previousElementSibling;
-        if (shadow) shadow.remove();
-        var store = document.getElementById('store');
-        if (store) {
-            store.style.position = 'relative';
-            store.style.marginTop = '0';
-            store.style.zIndex = '100';
+        let adContainer = document.getElementById("smallSupport");
+        if (adContainer) {
+          adContainer.innerHTML = "";
+          let iframe = document.createElement("iframe");
+          iframe.src = "https://www.youtube.com/embed/" + videoId + "?autoplay=1";
+          iframe.width = "300";
+          iframe.height = "250";
+          iframe.allow = "autoplay; encrypted-media";
+          iframe.setAttribute("frameborder", "0");
+          iframe.setAttribute("allowfullscreen", "");
+          adContainer.appendChild(iframe);
         }
-        var linksBar = document.getElementById('topBar');
-        if (linksBar) {
-            Array.from(linksBar.children).forEach(function(child) {
-                if (child.id !== 'heralds') child.remove();
-            });
-        }
-    }, 1);
+
+        Game.ClosePrompt();
+      }],
+      ['Cancel']
+    ]);
+    setTimeout(() => { l("youtubeLink").focus(); }, 10);
+  };
 })();
